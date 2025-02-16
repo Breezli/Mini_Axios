@@ -22,3 +22,22 @@ export function processHeaders(headers: any, data: any): any {// processHeaders 
   
   return headers// 返回 headers
 }
+
+export function parseHeaders(headers: string): any {// parseHeaders 函数接收 headers 参数
+  let parsed = Object.create(null)// 创建一个空对象
+  if (!headers) {// 如果 headers 不存在
+    return parsed// 返回 parsed
+  }
+  headers.split('\r\n').forEach(line => {// 遍历 headers 的每一行
+    let [key, val] = line.split(':')// 分割每一行的 key 和 val
+    key = key.trim().toLowerCase()// 去掉 key 的空格并将 key 转换为小写
+    if (!key) {// 如果 key 不存在
+      return// 直接返回
+    }
+    if (val) {// 如果 val 存在
+      val = val.trim()// 去掉 val 的空格
+    }
+    parsed[key] = val// 将 key 和 val 赋值给 parsed
+  })
+  return parsed// 返回 parsed
+}

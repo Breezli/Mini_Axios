@@ -1,13 +1,15 @@
-import { AxiosRequestConfig, AxiosPromise } from './types'
+import { AxiosRequestConfig, AxiosPromise, AxiosResponse } from './types'
 import xhr from './xhr'
 import { bulidURL } from './helpers/url'
-import { transformRequest } from './helpers/data'
+import { transformRequest,transformResponse } from './helpers/data'
 import { processHeaders } from './helpers/header'
 
 function axios(config: AxiosRequestConfig): AxiosPromise {
   // axios 函数接收一个 config 参数
   processConfig(config)
-  return xhr(config)
+  return xhr(config).then(res => {//请求结束后对 response data 进行处理
+    return transformResponseData(res)
+  })
 }
 
 function processConfig(config: AxiosRequestConfig): void {// 处理 config
@@ -31,6 +33,12 @@ function transformHeaders(config: AxiosRequestConfig): any {
   // 处理 headers 调用 processHeaders 方法
   const { headers = {}, data } = config
   return processHeaders(headers, data)
+}
+
+function transformResponseData(res: AxiosResponse): AxiosResponse {
+  // 处理 response data
+  res.data = transformResponse(res.data)
+  return res
 }
 
 export default axios
