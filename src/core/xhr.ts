@@ -1,6 +1,6 @@
-import { AxiosRequestConfig, AxiosPromise, AxiosResponse } from './types'
-import { parseHeaders } from './helpers/header'
-import { createError } from './helpers/error'
+import { AxiosRequestConfig, AxiosPromise, AxiosResponse } from '../types'
+import { parseHeaders } from '../helpers/header'
+import { createError } from '../helpers/error'
 
 export default function xhr(config: AxiosRequestConfig): AxiosPromise {
   // xhr 函数接收一个 config 参数
@@ -19,14 +19,16 @@ export default function xhr(config: AxiosRequestConfig): AxiosPromise {
       request.timeout = timeout
     }
 
-    request.open(method.toUpperCase(), url, true) // 调用 open 方法 并传入 method url true 三个参数 并将 method 转换为大写并赋值给 method,url. async:true异步
+    request.open(method.toUpperCase(), url!, true) // 调用 open 方法 并传入 method url true 三个参数 并将 method 转换为大写并赋值给 method,url. async:true异步
 
     request.onreadystatechange = function handleLoad() {
       // 调用 onreadystatechange 方法 并传入 handleLoad 函数 并赋值给 request 变量
-      if (request.readyState !== 4) { // 没有收到正确的响应
+      if (request.readyState !== 4) {
+        // 没有收到正确的响应
         return
       }
-      if (request.status === 0) { // 如果发送网络错误 || 超时错误
+      if (request.status === 0) {
+        // 如果发送网络错误 || 超时错误
         return
       }
 
@@ -46,12 +48,12 @@ export default function xhr(config: AxiosRequestConfig): AxiosPromise {
 
     request.onerror = function handleError() {
       // 调用 onerror 方法 并传入 handleError 函数 并赋值给 request 变量
-      reject(createError('Network Error',config,null,request)) // 传入 'Network Error',config,null,request 参数 调用 createError 方法 并传入参数
+      reject(createError('Network Error', config, null, request)) // 传入 'Network Error',config,null,request 参数 调用 createError 方法 并传入参数
     }
 
     request.ontimeout = function handleTimeout() {
       // 调用 ontimeout 方法 并传入 handleTimeout 函数 并赋值给 request 变量
-      reject(createError(`Timeout of ${timeout} ms exceeded`,config,'ECONNABORTED',request)) // 传入 `Timeout of ${timeout} ms exceeded`,config,'ECONNABORTED',request 参数 调用 createError 方法 并传入参数
+      reject(createError(`Timeout of ${timeout} ms exceeded`, config, 'ECONNABORTED', request)) // 传入 `Timeout of ${timeout} ms exceeded`,config,'ECONNABORTED',request 参数 调用 createError 方法 并传入参数
     }
 
     Object.keys(headers).forEach(name => {
@@ -66,11 +68,21 @@ export default function xhr(config: AxiosRequestConfig): AxiosPromise {
 
     request.send(data) // 调用 send 方法 并传入 data 参数 并赋值给 request 变量
 
-    function handleResponse(response: AxiosResponse): void { // 传入处理 response 参数
-      if (response.status >= 200 && response.status < 300) { // 状态码 大于等于 200 并且小于 300
+    function handleResponse(response: AxiosResponse): void {
+      // 传入处理 response 参数
+      if (response.status >= 200 && response.status < 300) {
+        // 状态码 大于等于 200 并且小于 300
         resolve(response) // 调用 resolve 方法 并传入 response 参数
       } else {
-        reject(createError(`Request failed with status code ${response.status}`,config,null,request,response)) // 传入 `Request failed with status code ${response.status}`,config,null,request,response 参数 调用 createError 方法 并传入参数
+        reject(
+          createError(
+            `Request failed with status code ${response.status}`,
+            config,
+            null,
+            request,
+            response
+          )
+        ) // 传入 `Request failed with status code ${response.status}`,config,null,request,response 参数 调用 createError 方法 并传入参数
       }
     }
   })

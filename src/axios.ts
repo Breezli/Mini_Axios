@@ -1,46 +1,15 @@
-import { AxiosRequestConfig, AxiosPromise, AxiosResponse } from './types'
-import xhr from './xhr'
-import { bulidURL } from './helpers/url'
-import { transformRequest, transformResponse } from './helpers/data'
-import { processHeaders } from './helpers/header'
+import { AxiosInstance } from "./types"
+import Axios from "./core/Axios"
+import { extend } from "./helpers/util"
 
-function axios(config: AxiosRequestConfig): AxiosPromise {
-  // axios 函数接收一个 config 参数
-  processConfig(config)
-  return xhr(config).then(res => {
-    //请求结束后对 response data 进行处理
-    return transformResponseData(res)
-  })
+function createInstance(): AxiosInstance {
+  const context = new Axios()//实例化一个 Axios 对象 并赋值给 context 变量
+  const instance = Axios.prototype.request.bind(context)//调用 request 方法 并传入 context 参数 并赋值给 instance 变量 绑定 this 指向 context
+
+  extend(instance, context) //调用 extend 方法 并传入 instance 和 context 参数 实现 instance 对象继承 context 对象
+  return instance as AxiosInstance //返回 instance 对象 并断言为 AxiosInstance 类型
 }
 
-function processConfig(config: AxiosRequestConfig): void {
-  // 处理 config
-  config.url = transformURL(config)
-  config.headers = transformHeaders(config) // 先处理 headers
-  config.data = transformRequestData(config) // 再处理 data
-}
-
-function transformURL(config: AxiosRequestConfig): string {
-  // 处理 url 返回拼接后的 url
-  const { url, params } = config
-  return bulidURL(url, params)
-}
-
-function transformRequestData(config: AxiosRequestConfig): void {
-  // 处理 data 调用 transformRequest 方法
-  config.data = transformRequest(config.data)
-}
-
-function transformHeaders(config: AxiosRequestConfig): any {
-  // 处理 headers 调用 processHeaders 方法
-  const { headers = {}, data } = config
-  return processHeaders(headers, data)
-}
-
-function transformResponseData(res: AxiosResponse): AxiosResponse {
-  // 处理 response data
-  res.data = transformResponse(res.data)
-  return res
-}
+const axios = createInstance() //调用 createInstance 方法 并赋值给 axios 变量
 
 export default axios
