@@ -1,8 +1,8 @@
 import { AxiosRequestConfig, AxiosPromise, AxiosResponse } from '../types'
 import xhr from './xhr'
 import { bulidURL } from '../helpers/url'
-import { transformRequest, transformResponse } from '../helpers/data'
-import { processHeaders } from '../helpers/header'
+import { flattenHeaders } from '../helpers/header'
+import transform from './transform'
 
 export default function dispatchRequest(config: AxiosRequestConfig): AxiosPromise {
   // dispatchRequest 函数接收一个 config 参数
@@ -16,8 +16,8 @@ export default function dispatchRequest(config: AxiosRequestConfig): AxiosPromis
 function processConfig(config: AxiosRequestConfig): void {
   // 处理 config
   config.url = transformURL(config)
-  config.headers = transformHeaders(config) // 先处理 headers
-  config.data = transformRequestData(config) // 再处理 data
+  config.data = transform(config.data, config.headers, config.transformRequest) //处理 data
+  config.headers = flattenHeaders(config.headers, config.method!) //处理 headers 扁平化
 }
 
 function transformURL(config: AxiosRequestConfig): string {
@@ -26,19 +26,8 @@ function transformURL(config: AxiosRequestConfig): string {
   return bulidURL(url!, params)
 }
 
-function transformRequestData(config: AxiosRequestConfig): void {
-  // 处理 data 调用 transformRequest 方法
-  config.data = transformRequest(config.data)
-}
-
-function transformHeaders(config: AxiosRequestConfig): any {
-  // 处理 headers 调用 processHeaders 方法
-  const { headers = {}, data } = config
-  return processHeaders(headers, data)
-}
-
 function transformResponseData(res: AxiosResponse): AxiosResponse {
   // 处理 response data
-  res.data = transformResponse(res.data)
+  res.data = transform(res.data, res.headers, res.config.transformResponse)
   return res
 }

@@ -1,6 +1,7 @@
 import { AxiosRequestConfig, AxiosPromise, AxiosResponse, Method,ResolvedFn,RejectedFn } from '../types'
 import dispatchRequest from './dispatchRequest'
 import InterceptorManager from './interceptorManager'
+import mergeConfig from './mergeConfig'
 
 interface Interceptors {
   request: InterceptorManager<AxiosRequestConfig>
@@ -13,8 +14,11 @@ interface PromiseChain<T> {
 }
 
 export default class Axios {
+  defaults: AxiosRequestConfig
   interceptors: Interceptors
-  constructor() {
+
+  constructor(initConfig?: AxiosRequestConfig) {
+    this.defaults = initConfig // 初始化defaults属性
     this.interceptors = {
       //用户可以通过axios.interceptors.request.use()添加拦截器
       request: new InterceptorManager<AxiosRequestConfig>(),
@@ -31,6 +35,7 @@ export default class Axios {
     } else {
       config = url
     }
+    config = mergeConfig(this.defaults,config) // 合并config
 
     const chain:PromiseChain<any>[] = [
       {

@@ -23,6 +23,10 @@ export interface AxiosRequestConfig {
   headers?: any
   responseType?: XMLHttpRequestResponseType
   timeout?: number
+  transformRequest?: AxiosTransformer | AxiosTransformer[]//请求数据转换函数
+  transformResponse?: AxiosTransformer | AxiosTransformer[]//响应数据转换函数
+
+  [propName: string]: any //字符串自动索引
 }
 
 export interface AxiosResponse<T = any> {
@@ -49,6 +53,12 @@ export interface AxiosError extends Error {
 }
 
 export interface Axios {
+  defaults: AxiosRequestConfig //默认配置
+  interceptors: {
+    //拦截器
+    request: AxiosInterceptorManager<AxiosRequestConfig>
+    response: AxiosInterceptorManager<AxiosResponse>
+  }
   //axios接口
   request<T = any>(config: AxiosRequestConfig): AxiosPromise<T>
 
@@ -74,6 +84,11 @@ export interface AxiosInstance extends Axios {
   <T = any>(url: string, config?: AxiosRequestConfig): AxiosPromise<T> //函数重载
 }
 
+export interface AxiosStatic extends AxiosInstance {
+  //axios静态接口
+  create(config?: AxiosRequestConfig): AxiosInstance //创建axios实例
+}
+
 export interface AxiosInterceptorManager<T> {
   //拦截器接口
   use(resolved: ResolvedFn<T>, rejected?: RejectedFn): number //添加拦截器 返回拦截器id
@@ -82,10 +97,15 @@ export interface AxiosInterceptorManager<T> {
 
 export interface ResolvedFn<T = any> {
   //成功拦截器接口
-  (val: T): T | Promise<T> 
+  (val: T): T | Promise<T>
 }
 
 export interface RejectedFn {
   //失败拦截器接口
-  (error: any): any 
+  (error: any): any
+}
+
+export interface AxiosTransformer {
+  //转换接口
+  (data: any, headers?: any): any
 }
