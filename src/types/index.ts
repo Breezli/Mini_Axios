@@ -14,7 +14,8 @@ export type Method =
   | 'patch'
   | 'PATCH'
 
-export interface AxiosRequestConfig {//config接口
+export interface AxiosRequestConfig {
+  //config接口
   url: string
   method?: Method
   data?: any
@@ -24,8 +25,9 @@ export interface AxiosRequestConfig {//config接口
   timeout?: number
 }
 
-export interface AxiosResponse {//response接口
-  data: any
+export interface AxiosResponse<T = any> {
+  //response接口
+  data: T
   status: number
   statusText: string
   headers: any
@@ -33,11 +35,12 @@ export interface AxiosResponse {//response接口
   request: any
 }
 
-export interface AxiosPromise extends Promise<AxiosResponse> {//promise接口
-
+export interface AxiosPromise<T = any> extends Promise<AxiosResponse<T>> {
+  //promise接口
 }
 
-export interface AxiosError extends Error {//error接口
+export interface AxiosError extends Error {
+  //error接口
   isAxiosError: boolean
   config: AxiosRequestConfig
   code?: string
@@ -45,24 +48,44 @@ export interface AxiosError extends Error {//error接口
   response?: AxiosResponse
 }
 
-export interface Axios {//axios接口
-  request(config: AxiosRequestConfig): AxiosPromise
+export interface Axios {
+  //axios接口
+  request<T = any>(config: AxiosRequestConfig): AxiosPromise<T>
 
-  get(url: string, config?: AxiosRequestConfig): AxiosPromise
+  get<T = any>(url: string, config?: AxiosRequestConfig): AxiosPromise<T>
 
-  delete(url: string, config?: AxiosRequestConfig): AxiosPromise
+  delete<T = any>(url: string, config?: AxiosRequestConfig): AxiosPromise<T>
 
-  head(url: string, config?: AxiosRequestConfig): AxiosPromise
+  head<T = any>(url: string, config?: AxiosRequestConfig): AxiosPromise<T>
 
-  options(url: string, config?: AxiosRequestConfig): AxiosPromise
+  options<T = any>(url: string, config?: AxiosRequestConfig): AxiosPromise<T>
 
-  post(url: string, data?: any, config?: AxiosRequestConfig): AxiosPromise
+  post<T = any>(url: string, data?: any, config?: AxiosRequestConfig): AxiosPromise<T>
 
-  put(url: string, data?: any, config?: AxiosRequestConfig): AxiosPromise
+  put<T = any>(url: string, data?: any, config?: AxiosRequestConfig): AxiosPromise<T>
 
-  patch(url: string, data?: any, config?: AxiosRequestConfig): AxiosPromise
+  patch<T = any>(url: string, data?: any, config?: AxiosRequestConfig): AxiosPromise<T>
 }
 
-export interface AxiosInstance extends Axios {//axios实例接口 既有函数类型又有属性接口
-  (config: AxiosRequestConfig): AxiosPromise
+export interface AxiosInstance extends Axios {
+  //axios实例接口 既有函数类型又有属性接口
+  <T = any>(config: AxiosRequestConfig): AxiosPromise<T>
+
+  <T = any>(url: string, config?: AxiosRequestConfig): AxiosPromise<T> //函数重载
+}
+
+export interface AxiosInterceptorManager<T> {
+  //拦截器接口
+  use(resolved: ResolvedFn<T>, rejected?: RejectedFn): number //添加拦截器 返回拦截器id
+  eject(id: number): void //删除拦截器 返回拦截器id
+}
+
+export interface ResolvedFn<T = any> {
+  //成功拦截器接口
+  (val: T): T | Promise<T> 
+}
+
+export interface RejectedFn {
+  //失败拦截器接口
+  (error: any): any 
 }
